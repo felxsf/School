@@ -1,0 +1,142 @@
+{
+  "info": {
+    "name": "School API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "b3a2c6c2-6d2a-4e2c-9dcd-collection-demo"
+  },
+  "item": [
+    {
+      "name": "Auth - Get Token",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": { "raw": "{{baseUrl}}/auth/token?username=admin&password=admin", "host": ["{{baseUrl}}"], "path": ["auth", "token"], "query": [
+          {"key": "username", "value": "admin"},
+          {"key": "password", "value": "admin"}
+        ] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "try {",
+              "  const data = pm.response.json();",
+              "  if (data && data.access_token) {",
+              "    pm.collectionVariables.set('token', data.access_token);",
+              "  }",
+              "} catch (e) { /* ignore */ }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Students",
+      "item": [
+        {
+          "name": "List (filters + paging)",
+          "request": {
+            "method": "GET",
+            "header": [ {"key": "Authorization", "value": "Bearer {{token}}"} ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students?identification={{identification}}&firstName={{firstName}}&lastName={{lastName}}&birthDateFrom={{birthDateFrom}}&birthDateTo={{birthDateTo}}&page=1&pageSize=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "students"],
+              "query": [
+                {"key": "identification", "value": ""},
+                {"key": "firstName", "value": ""},
+                {"key": "lastName", "value": ""},
+                {"key": "birthDateFrom", "value": ""},
+                {"key": "birthDateTo", "value": ""},
+                {"key": "page", "value": "1"},
+                {"key": "pageSize", "value": "10"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get by Identification",
+          "request": {
+            "method": "GET",
+            "header": [ {"key": "Authorization", "value": "Bearer {{token}}"} ],
+            "url": { "raw": "{{baseUrl}}/api/students/identification/{{identification}}", "host": ["{{baseUrl}}"], "path": ["api", "students", "identification", "{{identification}}"] }
+          }
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [ {"key": "Authorization", "value": "Bearer {{token}}"}, {"key": "Content-Type", "value": "application/json"} ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identificationNumber\": \"STU999999\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"birthDate\": \"2000-01-01\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/students", "host": ["{{baseUrl}}"], "path": ["api", "students"] }
+          }
+        },
+        {
+          "name": "Update",
+          "request": {
+            "method": "PUT",
+            "header": [ {"key": "Authorization", "value": "Bearer {{token}}"}, {"key": "Content-Type", "value": "application/json"} ],
+            "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Smith\",\n  \"birthDate\": \"2001-02-02\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/students/{{id}}", "host": ["{{baseUrl}}"], "path": ["api", "students", "{{id}}"] }
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [ {"key": "Authorization", "value": "Bearer {{token}}"} ],
+            "url": { "raw": "{{baseUrl}}/api/students/{{id}}", "host": ["{{baseUrl}}"], "path": ["api", "students", "{{id}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Courses - List",
+      "request": {
+        "method": "GET",
+        "header": [ {"key": "Authorization", "value": "Bearer {{token}}"} ],
+        "url": { "raw": "{{baseUrl}}/api/courses?code=&name=&professorId=&page=1&pageSize=10", "host": ["{{baseUrl}}"], "path": ["api", "courses"], "query": [
+          {"key": "code", "value": ""}, {"key": "name", "value": ""}, {"key": "professorId", "value": ""}, {"key": "page", "value": "1"}, {"key": "pageSize", "value": "10"}
+        ] }
+      }
+    },
+    {
+      "name": "Professors - List",
+      "request": {
+        "method": "GET",
+        "header": [ {"key": "Authorization", "value": "Bearer {{token}}"} ],
+        "url": { "raw": "{{baseUrl}}/api/professors?document=&name=&email=&page=1&pageSize=10", "host": ["{{baseUrl}}"], "path": ["api", "professors"], "query": [
+          {"key": "document", "value": ""}, {"key": "name", "value": ""}, {"key": "email", "value": ""}, {"key": "page", "value": "1"}, {"key": "pageSize", "value": "10"}
+        ] }
+      }
+    },
+    {
+      "name": "Grades - List",
+      "request": {
+        "method": "GET",
+        "header": [ {"key": "Authorization", "value": "Bearer {{token}}"} ],
+        "url": { "raw": "{{baseUrl}}/api/grades?studentId=&courseId=&type=&min=&max=&page=1&pageSize=10", "host": ["{{baseUrl}}"], "path": ["api", "grades"], "query": [
+          {"key": "studentId", "value": ""}, {"key": "courseId", "value": ""}, {"key": "type", "value": ""}, {"key": "min", "value": ""}, {"key": "max", "value": ""}, {"key": "page", "value": "1"}, {"key": "pageSize", "value": "10"}
+        ] }
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5008" },
+    { "key": "token", "value": "" },
+    { "key": "identification", "value": "STU000001" },
+    { "key": "firstName", "value": "" },
+    { "key": "lastName", "value": "" },
+    { "key": "birthDateFrom", "value": "" },
+    { "key": "birthDateTo", "value": "" },
+    { "key": "id", "value": "1" }
+  ]
+}
+

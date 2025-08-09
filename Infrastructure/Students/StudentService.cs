@@ -19,12 +19,34 @@ namespace Infrastructure.Students
         private readonly IMapper _mapper;
         public StudentService(SchoolDbContext db, IMapper mapper) { _db = db; _mapper = mapper; }
 
-        public async Task<(IEnumerable<StudentReadDto> items, int total)> GetPagedAsync(int page, int pageSize)
+        public async Task<(IEnumerable<StudentReadDto> items, int total)> GetPagedAsync(
+            int page,
+            int pageSize,
+            string? identification,
+            string? firstName,
+            string? lastName,
+            DateTime? birthDateFrom,
+            DateTime? birthDateTo)
         {
-            var query = _db.Students.AsNoTracking().OrderBy(s => s.Id);
-            var total = await query.CountAsync();
-            var items = await query.Skip((page - 1) * pageSize).Take(pageSize)
-                .ProjectTo<StudentReadDto>(_mapper.ConfigurationProvider).ToListAsync();
+            var q = _db.Students.AsNoTracking().AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(identification))
+                q = q.Where(s => s.IdentificationNumber.Contains(identification));
+            if (!string.IsNullOrWhiteSpace(firstName))
+                q = q.Where(s => s.FirstName.Contains(firstName));
+            if (!string.IsNullOrWhiteSpace(lastName))
+                q = q.Where(s => s.LastName.Contains(lastName));
+            if (birthDateFrom.HasValue)
+                q = q.Where(s => s.BirthDate >= birthDateFrom.Value);
+            if (birthDateTo.HasValue)
+                q = q.Where(s => s.BirthDate <= birthDateTo.Value);
+
+            q = q.OrderBy(s => s.Id);
+
+            var total = await q.CountAsync();
+            var items = await q.Skip((page - 1) * pageSize).Take(pageSize)
+                .ProjectTo<StudentReadDto>(_mapper.ConfigurationProvider)
+                .ToListAsync();
             return (items, total);
         }
 

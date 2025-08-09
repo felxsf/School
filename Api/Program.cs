@@ -48,6 +48,8 @@ builder.Services.AddValidatorsFromAssemblyContaining<School.Application.Validati
 // ProblemDetails (RFC 7807) para excepciones no controladas y 400 de modelo
 builder.Services.AddProblemDetails(options =>
 {
+    // Mostrar detalles de excepción solo en desarrollo
+    //options.IncludeExceptionDetails = (ctx, ex) => builder.Environment.IsDevelopment();
     options.CustomizeProblemDetails = ctx =>
     {
         ctx.ProblemDetails.Extensions["traceId"] = ctx.HttpContext.TraceIdentifier;
@@ -99,7 +101,14 @@ app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
-app.UseExceptionHandler();
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseExceptionHandler();
+}
 
 app.UseAuthentication();
 app.UseAuthorization();

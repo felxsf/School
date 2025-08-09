@@ -92,6 +92,19 @@ public class SchoolDbContext : DbContext
             BirthDate = new DateTime(2000, 1, 1).AddDays(i * 30)
         }).ToArray();
         mb.Entity<Student>().HasData(students);
+
+        // Enrollments seed: matricular algunos estudiantes en cursos existentes
+        var enrollments = new List<Enrollment>();
+        int enrollmentId = 1;
+        // usar fecha estática para evitar PendingModelChangesWarning
+        var enrolledAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        for (int studentId = 1; studentId <= 10; studentId++)
+        {
+            // cada estudiante en dos cursos distintos
+            enrollments.Add(new Enrollment { Id = enrollmentId++, StudentId = studentId, CourseId = 1, EnrolledAt = enrolledAt });
+            enrollments.Add(new Enrollment { Id = enrollmentId++, StudentId = studentId, CourseId = (studentId % 5) + 1, EnrolledAt = enrolledAt });
+        }
+        mb.Entity<Enrollment>().HasData(enrollments);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

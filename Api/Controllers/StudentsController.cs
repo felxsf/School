@@ -14,14 +14,21 @@ namespace Api.Controllers
         private readonly IStudentService _service;
         public StudentsController(IStudentService service) => _service = service;
 
-        // GET: api/students?page=1&pageSize=10  (Bonus)
+        // GET: api/students?identification=&firstName=&lastName=&birthDateFrom=&birthDateTo=&page=1&pageSize=10
         [HttpGet]
-        public async Task<ActionResult<object>> GetPaged([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<object>> GetPaged(
+            [FromQuery] string? identification,
+            [FromQuery] string? firstName,
+            [FromQuery] string? lastName,
+            [FromQuery] DateTime? birthDateFrom,
+            [FromQuery] DateTime? birthDateTo,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10)
         {
             page = page < 1 ? 1 : page;
             pageSize = pageSize < 1 ? 10 : pageSize;
 
-            var (items, total) = await _service.GetPagedAsync(page, pageSize);
+            var (items, total) = await _service.GetPagedAsync(page, pageSize, identification, firstName, lastName, birthDateFrom, birthDateTo);
             var totalPages = (int)Math.Ceiling(total / (double)pageSize);
             return Ok(new { page, pageSize, total, totalPages, items });
         }
