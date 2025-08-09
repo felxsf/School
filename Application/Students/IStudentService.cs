@@ -1,4 +1,6 @@
-﻿namespace School.Application.Students;
+﻿using Application.Students;
+
+namespace School.Application.Students;
 
 public interface IStudentService
 {

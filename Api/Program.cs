@@ -1,13 +1,26 @@
+﻿using Api.Services;
+using Application;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Infrastructure;
 using Infrastructure.Students;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using School.Application;
+using School.Api.Services;
+using School.Application.Courses;
+using School.Application.Grades;
+using School.Application.Professors;
 using School.Application.Students;
+using School.Infrastructure.Courses;
+using School.Infrastructure.Grades;
+using School.Infrastructure.Professors;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using School.Application.Abstractions;
+using School.Infrastructure;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,8 +31,28 @@ builder.Services.AddDbContext<SchoolDbContext>(opt =>
 // Services
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddScoped<IProfessorService, ProfessorService>();
+builder.Services.AddScoped<ICourseService, CourseService>();
+builder.Services.AddScoped<IGradeService, GradeService>();
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<School.Application.Abstractions.IUserContext, UserContext>();
 
 builder.Services.AddControllers();
+
+
+// Auto‑validación de FluentValidation -> 400 con ValidationProblemDetails
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<School.Application.Validation.StudentCreateDtoValidator>();
+
+// ProblemDetails (RFC 7807) para excepciones no controladas y 400 de modelo
+builder.Services.AddProblemDetails(options =>
+{
+    options.CustomizeProblemDetails = ctx =>
+    {
+        ctx.ProblemDetails.Extensions["traceId"] = ctx.HttpContext.TraceIdentifier;
+    };
+});
 
 // JWT
 var jwt = builder.Configuration.GetSection("Jwt");
@@ -65,6 +98,8 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
+
+app.UseExceptionHandler();
 
 app.UseAuthentication();
 app.UseAuthorization();

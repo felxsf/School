@@ -1,4 +1,4 @@
-﻿namespace School.Application.Students;
+﻿namespace Application.Students;
 
 public record StudentCreateDto(string IdentificationNumber, string FirstName, string LastName, DateTime BirthDate);
 public record StudentUpdateDto(string FirstName, string LastName, DateTime BirthDate);

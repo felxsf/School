@@ -1,8 +1,10 @@
-﻿using AutoMapper;
+﻿using Application.Students;
+using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using School.Application.Students;
+using School.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
